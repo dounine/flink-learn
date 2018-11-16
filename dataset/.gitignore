@@ -4,3 +4,5 @@ out/
 .gradle/
 src/main/resources/core-site.xml
 src/main/resources/hbase-site.xml
+src/main/resources/hdfs-site.xml
+src/main/resources/mapred-site.xml

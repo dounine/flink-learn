@@ -28,6 +28,8 @@ object HadoopKrb {
     val cfg = new Configuration
     cfg.addResource("hbase-site.xml")
     cfg.addResource("core-site.xml")
+    cfg.addResource("hdfs-site.xml")
+    cfg.addResource("mapred-site.xml")
     cfg
   }
 }
