@@ -22,20 +22,21 @@ import org.apache.hadoop.mapreduce.Job
 
 object App {
 
-  var CONFIG:Configuration = null
+
+  def getCConf: Configuration ={
+    val conf = HadoopKrb.login()
+    conf.set(TableInputFormat.INPUT_TABLE, "logTable")
+    conf.set(TableInputFormat.SCAN_ROW_START, "181111000000")
+    conf.set(TableInputFormat.SCAN_ROW_STOP, "181111000010")
+    conf
+  }
 
   def main(args: Array[String]): Unit = {
-    val conf = HadoopKrb.login()
+    val conf = getCConf
 
     val env = StreamExecutionEnvironment.getExecutionEnvironment
     val tableEnv = TableEnvironment.getTableEnvironment(env)
 
-
-    conf.set(TableInputFormat.INPUT_TABLE, "logTable")
-    conf.set(TableInputFormat.SCAN_ROW_START, "181111000000")
-    conf.set(TableInputFormat.SCAN_ROW_STOP, "181111000010")
-
-    CONFIG = conf
 
     val inputFormat = HadoopInputs.createHadoopInput(
       new CustomTableInputFormat,
@@ -53,7 +54,7 @@ object App {
     val tt = tableEnv.sqlQuery("select * from log")
 
 //    tableEnv.toAppendStream(tt,classOf[Row]).print()
-
+    
     tableEnv.toAppendStream(tt,classOf[Row]).writeAsText(s"""hdfs://storm5.starsriver.cn:8020/tmp/flink/stream1""")
 
     env.execute

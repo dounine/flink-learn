@@ -21,7 +21,7 @@ class LogSource() extends SourceFunction[Log] with Serializable {
 
   override def run(ctx: SourceFunction.SourceContext[Log]): Unit = {
 
-    val conf = App.CONFIG
+    val conf = App.getCConf
     val inputFormat: HadoopInputFormat[ImmutableBytesWritable, Result] = HadoopInputs.createHadoopInput(new CustomTableInputFormat, classOf[ImmutableBytesWritable], classOf[Result], Job.getInstance(conf))
     while (!isCancel) {
       val splits: Array[HadoopInputSplit] = inputFormat.createInputSplits(1)
