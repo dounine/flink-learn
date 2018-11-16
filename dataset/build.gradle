@@ -1,0 +1,98 @@
+group 'com.dounine'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.4"
+    }
+}
+
+apply plugin: "com.github.johnrengelman.shadow"
+apply plugin: 'java'
+apply plugin: 'scala'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+configurations {
+    provided
+}
+shadowJar {
+    zip64 true
+}
+
+def env = hasProperty("pro") ? "RELEASE" : "SNAPSHOT"
+
+sourceSets {
+    main {
+        compileClasspath += configurations.provided
+        resources {
+            srcDirs = ["src/main/resources", "src/main/profile/$env"]
+        }
+    }
+}
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+//task copyJars(type: Copy) {
+//    from configurations.runtime
+//    into new File('build/libs/lib') // 目标位置
+//}
+//compileJava.dependsOn copyJars
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'DounineFlink',
+                'Implementation-Version': version,
+                'Main-Class': 'com.dounine.scala.flink.App'
+    }
+    //    from {
+    //        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    //    }
+}
+dependencies {
+    compile 'org.scala-lang:scala-library:2.11.12'
+    testCompile 'org.scalatest:scalatest_2.11:3.0.0'
+
+    // https://mvnrepository.com/artifact/org.apache.flink/flink-streaming-java
+    provided group: 'org.apache.flink', name: 'flink-streaming-java_2.11', version: '1.6.2'
+    provided group: 'org.apache.flink', name: 'flink-table_2.11', version: '1.6.2'
+    provided group: 'org.apache.flink', name: 'flink-streaming-scala_2.11', version: '1.6.2'
+
+// https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+    provided group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+// https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
+    provided group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
+// https://mvnrepository.com/artifact/org.slf4j/slf4j-nop
+    provided group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.25'
+//依赖包
+    compile group: 'org.apache.hbase', name: 'hbase-client', version: '2.0.0'
+    compile group: 'org.apache.hbase', name: 'hbase-mapreduce', version: '2.0.0'
+    compile group: 'org.apache.hbase', name: 'hbase-common', version: '2.0.0'
+    compile group: 'org.apache.flink', name: 'flink-hadoop-compatibility_2.11', version: '1.5.2'
+    // https://mvnrepository.com/artifact/com.esotericsoftware/kryo
+    // https://mvnrepository.com/artifact/com.esotericsoftware.kryo/kryo
+//    provided group: 'com.esotericsoftware.kryo', name: 'kryo', version: '2.24.0'
+//    compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
+//    compile group: 'com.esotericsoftware', name: 'kryo', version: '4.0.2'
+    compile group: 'org.apache.flink', name: 'flink-connector-kafka-0.9_2.11', version: '1.6.2'
+//    compile group: 'org.apache.flink', name: 'flink-connector-redis_2.11', version: '1.1.5'
+//    compile group: 'org.mongodb', name: 'mongo-java-driver', version: '3.7.1'
+    compile group: 'com.alibaba', name: 'fastjson', version: '1.2.47'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
+//    compile group: 'com.google.guava', name: 'guava', version: '25.1-jre'
+//    compile(group: 'org.springframework.data', name: 'spring-data-mongodb', version: '2.0.8.RELEASE'){
+//        exclude group: 'org.slf4j'
+//    }
+//    testCompile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
+//    testCompile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.2'
+//    testCompile group: 'commons-io', name: 'commons-io', version: '2.6'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}

@@ -1,0 +1,6 @@
+build/
+out/
+.idea/
+.gradle/
+src/main/resources/core-site.xml
+src/main/resources/hbase-site.xml
