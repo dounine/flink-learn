@@ -47,7 +47,7 @@ class LogSource() extends SourceFunction[Log] with Serializable {
           }
         }
         inputFormat.close()
-        TimeUnit.SECONDS.sleep(10)
+        TimeUnit.SECONDS.sleep(60)
       }
     }
 
