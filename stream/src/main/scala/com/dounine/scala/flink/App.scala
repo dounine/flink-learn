@@ -27,10 +27,21 @@ object App {
 
 
   val LOGGER = LoggerFactory.getLogger(classOf[App])
-  val conf = HadoopKrb.login()
+
+  def getConf(): Configuration ={
+    val conf = HadoopKrb.login()
+    val rowStart = "181111000000"
+    val stopRow = "181111010000"
+    conf.set(TableInputFormat.INPUT_TABLE, "logTable")
+
+    conf.set(TableInputFormat.SCAN_ROW_START, rowStart)
+    conf.set(TableInputFormat.SCAN_ROW_STOP, stopRow)
+    conf
+  }
 
   def main(args: Array[String]): Unit = {
 
+    val conf = getConf
     val env = StreamExecutionEnvironment.getExecutionEnvironment
     val tableEnv = TableEnvironment.getTableEnvironment(env)
 
@@ -51,11 +62,11 @@ object App {
 
     val tt = tableEnv.sqlQuery("select * from log")
 
-//    tableEnv.toAppendStream(tt,classOf[Row]).print()
+    tableEnv.toAppendStream(tt,classOf[Row]).print()
 
     val currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy_MM_dd'T'HH_mm_ss"))
 
-    tableEnv.toAppendStream(tt,classOf[Row]).writeAsText(s"""hdfs:///tmp/flink/stream1/${currentTime}""", FileSystem.WriteMode.OVERWRITE)
+//    tableEnv.toAppendStream(tt,classOf[Row]).writeAsText(s"""hdfs:///tmp/flink/stream1/${currentTime}""", FileSystem.WriteMode.OVERWRITE)
 
     env.execute
     LOGGER.info("finish")

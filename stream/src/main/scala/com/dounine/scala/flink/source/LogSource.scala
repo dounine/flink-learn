@@ -11,6 +11,7 @@ import org.apache.flink.api.java.hadoop.mapreduce.wrapper.HadoopInputSplit
 import org.apache.flink.api.java.tuple.Tuple2
 import org.apache.flink.hadoopcompatibility.HadoopInputs
 import org.apache.flink.streaming.api.functions.source.SourceFunction
+import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.hbase.client.Result
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable
 import org.apache.hadoop.mapreduce.Job
@@ -20,8 +21,7 @@ class LogSource() extends SourceFunction[Log] with Serializable {
   var isCancel: Boolean = false
 
   override def run(ctx: SourceFunction.SourceContext[Log]): Unit = {
-
-    val conf = App.conf
+    val conf = App.getConf()
     val inputFormat: HadoopInputFormat[ImmutableBytesWritable, Result] = HadoopInputs.createHadoopInput(new CustomTableInputFormat, classOf[ImmutableBytesWritable], classOf[Result], Job.getInstance(conf))
     while (!isCancel) {
       val splits: Array[HadoopInputSplit] = inputFormat.createInputSplits(1)
@@ -50,8 +50,6 @@ class LogSource() extends SourceFunction[Log] with Serializable {
         TimeUnit.SECONDS.sleep(60)
       }
     }
-
-
   }
 
   override def cancel(): Unit = {
