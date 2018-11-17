@@ -7,7 +7,7 @@ class Log(
               var scene: String,
               var `type`: String,
               var userId: String
-            ) extends Serializable {
+            ) {
 
   def this() {
     this("", "", "", "", "", "")
@@ -37,4 +37,6 @@ class Log(
 
   def setUserId(value: String): Unit = userId = value
 
+
+  override def toString = s"Log($getTime, $getAppKey, $getCcode, $getScene, $getType, $getUserId)"
 }
