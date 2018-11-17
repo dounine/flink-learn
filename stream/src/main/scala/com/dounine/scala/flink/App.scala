@@ -11,6 +11,7 @@ import com.dounine.scala.flink.utils.HadoopKrb
 import com.dounine.scala.flink.utils.HbaseUtil._
 import org.apache.flink.api.common.functions.MapFunction
 import org.apache.flink.api.java.tuple.Tuple2
+import org.apache.flink.core.fs.FileSystem
 import org.apache.flink.hadoopcompatibility.HadoopInputs
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.table.api.TableEnvironment
@@ -52,7 +53,9 @@ object App {
 
 //    tableEnv.toAppendStream(tt,classOf[Row]).print()
 
-    tableEnv.toAppendStream(tt,classOf[Row]).writeAsText(s"""hdfs:///tmp/flink/stream1""")
+    val currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy_MM_dd'T'HH_mm_ss"))
+
+    tableEnv.toAppendStream(tt,classOf[Row]).writeAsText(s"""hdfs:///tmp/flink/stream1/${currentTime}""", FileSystem.WriteMode.OVERWRITE)
 
     env.execute
     LOGGER.info("finish")

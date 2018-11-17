@@ -76,7 +76,9 @@ object App {
 
     //    tableEnv.toDataSet(tt, classOf[Row]).print()
 
-    tableEnv.toDataSet(tt, classOf[Row]).writeAsText(s"""hdfs://storm5.starsriver.cn:8020/tmp/flink/${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy_MM_dd'T'HH_mm_ss"))}""")
+    val currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy_MM_dd'T'HH_mm_ss"))
+
+    tableEnv.toDataSet(tt, classOf[Row]).writeAsText(s"""hdfs://storm5.starsriver.cn:8020/tmp/flink/${currentTime}""")
 
     env.execute
     LOGGER.info("finish")
