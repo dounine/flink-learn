@@ -37,4 +37,6 @@ class Log(
 
   def setUserId(value: String): Unit = userId = value
 
+
+  override def toString = s"Log($getTime, $getAppKey, $getCcode, $getScene, $getType, $getUserId)"
 }
