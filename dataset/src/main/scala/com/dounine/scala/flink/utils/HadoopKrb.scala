@@ -30,6 +30,7 @@ object HadoopKrb {
     cfg.addResource("core-site.xml")
     cfg.addResource("hdfs-site.xml")
     cfg.addResource("mapred-site.xml")
+    cfg.addResource("yarn-site.xml")
     cfg
   }
 }
