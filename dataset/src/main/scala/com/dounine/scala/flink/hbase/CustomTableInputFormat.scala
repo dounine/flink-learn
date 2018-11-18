@@ -7,7 +7,7 @@ import java.{lang, util}
 import com.dounine.scala.flink.utils.HadoopKrb
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.hbase.client.ConnectionFactory
-import org.apache.hadoop.hbase.mapreduce.{RegionSizeCalculator, TableInputFormat, TableSplit}
+import org.apache.hadoop.hbase.mapreduce.{TableInputFormat, TableSplit}
 import org.apache.hadoop.hbase.security.User
 import org.apache.hadoop.hbase.util.{Bytes, Strings}
 import org.apache.hadoop.hbase.{HRegionLocation, TableName}
@@ -29,10 +29,9 @@ class CustomTableInputFormat extends TableInputFormat {
     val end = conf.get(TableInputFormat.SCAN_ROW_STOP)
 
     val tableName: TableName = super.getTable.getName
-    val sizeCalculator: RegionSizeCalculator = new RegionSizeCalculator(getRegionLocator, getAdmin)
     val splits: util.List[InputSplit] = new util.ArrayList[InputSplit]
 
-    val prefexs = (0 until 1).map(Integer.toHexString).map {
+    val prefexs = (0 until 256).map(Integer.toHexString).map {
       s =>
         if (s.length == 1) "0" + s
         else s
@@ -40,17 +39,13 @@ class CustomTableInputFormat extends TableInputFormat {
 
     prefexs.foreach {
       prefex =>
-        val location: HRegionLocation = getRegionLocator.getRegionLocation(Bytes.toBytes(prefex), false)
+        val location: HRegionLocation = getRegionLocator.getRegionLocation(Bytes.toBytes(prefex))
         val isa: InetSocketAddress = new InetSocketAddress(location.getHostname, location.getPort)
-        val regionAddress: InetAddress = isa.getAddress
-        val regionLocation: String = reverse(regionAddress)
-        val regionName: Array[Byte] = location.getRegion.getRegionName
-        val encodedRegionName: String = location.getRegion.getEncodedName
-        val regionSize: Long = sizeCalculator.getRegionSize(regionName)
+        val regionLocation = reverse(isa.getAddress)
 
-        val splitStart: Array[Byte] = Bytes.add(Bytes.toBytes(prefex + "|"), Bytes.toBytes(start))
-        val splitStop: Array[Byte] = Bytes.add(Bytes.toBytes(prefex + "|"), Bytes.toBytes(end))
-        val split: TableSplit = new TableSplit(tableName, this.getScan, splitStart, splitStop, regionLocation, encodedRegionName, regionSize)
+        val splitStart: Array[Byte] = Bytes.toBytes(s"${prefex}|${start}")
+        val splitStop: Array[Byte] = Bytes.toBytes(s"${prefex}|${end}")
+        val split: TableSplit = new TableSplit(tableName, this.getScan, splitStart, splitStop, regionLocation)
 
         splits.add(split)
     }
